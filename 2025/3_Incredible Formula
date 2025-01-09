@@ -1,0 +1,96 @@
+from manim import *
+
+
+class mt(ThreeDScene):
+    def construct(self): 
+
+        #Intro
+        text = Tex('The Incredible Formula').set_color(RED)
+        text_rec = Rectangle(height=text.height*2,width=text.width*1.5).move_to(text.get_center())
+        self.play(ShowPassingFlash(text_rec))
+        self.play(Write(text),FadeIn(text_rec))
+        self.wait()
+        textg1 = VGroup(text,text_rec)
+        self.play(textg1.animate.to_edge(UP,buff=1))
+        self.wait()
+
+        eq_text_str = '(1+9^{-4^{6\\cdot 7}})^{3^{2^{85}}}'
+        eq_text = MathTex(r'(1+9^{-4^{6 \cdot 7}})^{3^{2^{85}}}')
+        eq_text_rec=Rectangle(height=eq_text.height,width=eq_text.width,stroke_opacity=0).move_to(eq_text.get_center())
+        self.add(eq_text_rec)
+        self.play(Write(eq_text),run_time=2)
+        self.play(Indicate(eq_text))
+        self.wait()
+
+        ##Explain why this is pandigital
+        index_list = [1,11,10,5,13,6,8,12,3]
+        group_num = VGroup()
+        for index,i in enumerate(index_list):
+            num = MathTex(f'{index+1}').move_to(eq_text)
+            num.shift(DOWN)
+            num.to_edge(LEFT,buff=3)
+            num.shift(RIGHT*index)
+            number = eq_text[0][i].copy()
+            self.add(number)
+            self.play(number.animate.set_color(RED),run_time=0.5)
+            self.play(Transform(number,num),run_time=0.5)
+            group_num.add(number)
+            
+        self.wait()
+        text2 = Text('Pandigital Formula').set_color(RED).shift(DOWN*2)
+        text2_rec = Rectangle(height=text2.height*2,width=text2.width*1.5).move_to(text2.get_center())
+        self.play(ReplacementTransform(group_num,text2),FadeIn(text2_rec))
+        self.play(FadeOut(group_num))
+        self.wait()
+        self.play(Unwrite(text2),FadeOut(text2_rec))
+        
+            
+        #This is e
+        def get_text_replace(index,transform):
+            pteq = eq_text[0][index].copy()
+            self.play(Transform(pteq,transform))
+        
+        self.wait()
+        self.play(Unwrite(eq_text))
+        self.wait()
+
+
+        #Explain e
+        e_eq = MathTex(r'e=\lim_{n\to\infty} (1+\frac{1}{n})^n')
+        self.play(Write(e_eq),run_time=2)
+        self.wait()
+        e_eq2 = MathTex(r'e\approx (1+\frac{1}{n})^n')
+        self.play(e_eq.animate.shift(UP).set_opacity(0),Write(e_eq2))
+        self.remove(e_eq)
+        self.wait()
+
+        eq_text_list = MathTex(r'(1+9^{-4^{6 \cdot 7}})^{3^{2^{85}}} &=(1+9^{-4^{6 \cdot 7}})^{9^{2^{84}}}\\ &=(1+9^{-4^{6 \cdot 7}})^{9^{2^{42}}}\\ &=(1+9^{-4^{42}})^{9^{4^{42}}}\\ &=(1+N^{-1})^N\approx e').to_edge(LEFT).shift(DOWN)
+        self.play(e_eq2.animate.shift(UP*1.5).to_edge(LEFT))
+        self.wait()
+        self.play(Write(eq_text_list[0][0:15]))
+        self.wait()
+        self.play(Write(eq_text_list[0][15:29]))
+        self.wait()
+        self.play(Write(eq_text_list[0][29:44]))
+        self.wait()
+        self.play(Write(eq_text_list[0][44:58]))
+        self.wait()
+        self.play(Write(eq_text_list[0][58:-2]))
+        self.wait()
+        self.play(Write(eq_text_list[0][-2:]))
+        self.wait(3)
+
+        #They are equal!
+        self.play(Unwrite(eq_text_list[0][0:44]),Unwrite(eq_text_list[0][58:]))
+        self.wait()
+        self.play(eq_text_list[0][44:58].animate.move_to(ORIGIN).shift(RIGHT*2))
+        self.play(e_eq2.animate.next_to(eq_text_list[0][44:58],LEFT))
+        self.wait()
+        group = VGroup(eq_text_list[0][44:58],e_eq2)
+
+        #Until the 18trillion trillion digit
+        e_eq3 = MathTex(r'e \approx (1+9^{-4^{42}})^{9^{4^{42}}}')
+        self.play(ReplacementTransform(group,e_eq3))
+        self.wait()
+        self.play(e_eq3.animate.scale(3))
+        self.wait(3)
