@@ -1,0 +1,202 @@
+from manim import *
+
+class mt(Scene):
+    def construct(self):
+        #Banach Fixed Point theorem
+        text1 = Text('Banach Fixed-Point Theorem:').set_color(RED)
+        text1_sub = Text('What is cos(cos(cos(cos... ?').set_color(YELLOW).scale(0.5).next_to(text1,DOWN)
+        self.play(Write(text1),Write(text1_sub))
+        self.wait()
+        self.play(LaggedStart(text1_sub.animate.to_edge(UP),text1.animate.to_edge(UP,buff=2),lag_ratio=0.5))
+        self.wait()
+
+        math1 = MathTex(r'\\ &1. \, \mid f(y)-f(x) \mid \,\, < \,\, \mid y-x \mid',r'\\ &2. \, f(x^{\ast}) = x^{\ast}').next_to(text1,DOWN,buff=0.5)
+        self.play(Write(math1[0]))
+        self.play(Write(math1[1]))
+        self.wait()
+
+        text2 = Tex('f(x) is a contraction if f(x) converge ').shift(DOWN*2).set_z_index(11)
+        text2[0][7:18].set_color(YELLOW)
+        text2[0][24:32].set_color(PURPLE)
+        text2_rec=  Rectangle(fill_opacity=0.2,fill_color=GRAY,height=text2.height*1.2,width=text2.width*1.2).move_to(text2.get_center())
+        box = SurroundingRectangle(math1[0])
+        self.play(Create(box))
+        self.play(ReplacementTransform(box,text2),FadeIn(text2_rec))
+        self.wait(2)
+
+        group1 = VGroup(text1,math1)
+        self.play(FadeOut(group1),VGroup(text2,text2_rec).animate.next_to(text1_sub,DOWN,buff=0.1),)
+        self.wait()
+
+        
+        #Graph & Func
+        def cos(x):
+            return np.cos(x)
+        self.wait()
+        axes = Axes(x_range = [-0.1,PI/2+0.1,PI/2], 
+                     y_range=[-0.1,PI/2+0.1,0.2],
+                     x_length=8,y_length=7,
+                     tips=False,
+                     axis_config={'include_numbers':False,'include_ticks': True}).shift(UP).scale(1.2).set_z_index(-1)
+        cos_func = axes.plot(lambda x: np.cos(x),x_range=[0,PI/2]).set_color(BLUE)
+        cos_label = axes.get_graph_label(graph=cos_func,x_val=PI/2,label='y=\cos(x)').shift(UP)
+        cover_rec = Rectangle(fill_color=BLACK,color=BLACK,fill_opacity=1).to_edge(UP,buff=0).set_z_index(-0.5)
+        cover_rec.shift(LEFT*4+UP*0.2)
+        self.add(cover_rec)
+        self.play(Create(axes))
+        self.play(Create(cos_func),Write(cos_label))
+        self.wait()
+
+        #Lines
+        x = ValueTracker(0)
+        cos_dot = always_redraw(lambda : Dot(axes.c2p(x.get_value(),cos(x.get_value())),color=RED))
+        x_text = always_redraw(lambda: MathTex(f'cos({round(x.get_value(),ndigits=2)})={round(np.cos(x.get_value()),ndigits=2)}').next_to(cos_dot).set_color(RED))
+        cos_dot_ver = always_redraw(lambda: Line(axes.c2p(x.get_value(),cos(x.get_value())),axes.c2p(x.get_value(),0),stroke_width=3,color=RED))
+
+        self.play(Write(x_text),Create(cos_dot),Create(cos_dot_ver))
+        self.play(x.animate.set_value(0.50),run_time=2)
+
+        #Output --> Input --> Repeat
+        cdvi = cos_dot_ver
+        group_lines = VGroup()
+        for i in range(5):
+            cdvo = Line(axes.c2p(0,0),axes.c2p(np.cos(x.get_value()),0),stroke_width=3).set_color(PURPLE)
+            x1_arrow = MathTex(r'\rightarrow').move_to(axes.c2p(x.get_value(),cos(x.get_value()))).shift(LEFT*0.5).set_color(RED)
+            self.play(Create(x1_arrow))
+            x_arrow = MathTex(r'\uparrow').move_to(axes.c2p(np.cos(x.get_value()),0)).shift(DOWN*0.5).set_color(PURPLE)
+            self.play(ReplacementTransform(cdvi.copy(),cdvo),ReplacementTransform(x1_arrow,x_arrow),run_time=2)
+            copy_ver = Line(axes.c2p(x.get_value(),0),axes.c2p(x.get_value(),cos(x.get_value()))).set_color(PURPLE)
+            self.add(copy_ver)
+            self.play(x.animate.set_value(np.cos(x.get_value())))
+            self.play(FadeOut(cdvo),FadeOut(x_arrow))
+            group_lines.add(copy_ver)
+     
+        self.play(FadeOut(group_lines))
+        self.wait()
+
+        aprx_cos = MathTex(r'\rightarrow converges').move_to(x_text.get_center()).set_color(PURPLE).shift(LEFT*0.5)
+        self.play(ReplacementTransform(x_text,aprx_cos))
+        self.wait()
+
+        self.play(*[FadeOut(mob) for mob in self.mobjects])
+
+        #Back to theorems
+        self.play(VGroup(text2,text2_rec).animate.move_to(ORIGIN).shift(DOWN*2),FadeIn(math1,text1),FadeIn(text1_sub))
+        self.wait()
+        math1_c = math1[0].copy()
+        self.play(ReplacementTransform(VGroup(text2,text2_rec),math1_c))
+        self.remove(math1_c)
+        self.play(Indicate(math1[0]))
+        self.play(math1[0].animate.set_color(GREEN))
+        self.wait(2)
+
+        math2 = MathTex(r'\cos(x)=x').set_color(YELLOW).shift(DOWN*2)
+        math2_rec=  Rectangle(fill_opacity=0.2,fill_color=GRAY,height=math2.height*1.2,width=math2.width*1.2).move_to(math2.get_center())
+        box = SurroundingRectangle(math1[1])
+        self.play(Create(box))
+        self.play(ReplacementTransform(box,math2),FadeIn(math2_rec))
+        self.wait(2)
+
+        group1 = VGroup(text1,math1)
+        self.play(FadeOut(group1),VGroup(math2,math2_rec).animate.next_to(text1_sub,DOWN,buff=0.1))
+        self.wait()
+        
+
+
+
+
+        #Spiral
+        self.add(cover_rec)
+        self.play(Create(axes))
+        self.play(Create(cos_func),Write(cos_label))
+        self.wait()
+        
+        x_y = axes.plot(lambda x: x, color=BLUE,x_range=[0,1])
+        x_y_label = axes.get_graph_label(graph= x_y,color=BLUE,label='y=x',x_val=1)
+        self.play(Create(x_y),Create(x_y_label))
+        self.wait()
+        
+        s_lg = VGroup()
+        line1 = Line(axes.c2p(0.5,0),axes.c2p(0.5,cos(0.5)),stroke_width=3).set_color(YELLOW)
+        self.play(Create(line1))
+        self.wait()
+
+        line2 = Line(axes.c2p(0,0),axes.c2p(cos(0.5),0)).set_color(YELLOW)
+        self.play(ReplacementTransform(line1.copy(),line2))
+        self.wait()
+
+        self.play(line1.animate.move_to(axes.c2p(cos(0.5),cos(0.5)/2)),line2.animate.move_to(axes.c2p(cos(0.5)/2,cos(0.5))))
+        self.wait(2)
+
+        line2_short = Line(axes.c2p(0.5,cos(0.5)),axes.c2p(cos(0.5),cos(0.5))).set_color(YELLOW)
+        self.play(line1.animate.move_to(axes.c2p(0.5,cos(0.5)/2)),ReplacementTransform(line2,line2_short))
+        self.wait()
+
+        line3 = Line(axes.c2p(cos(0.5),0),axes.c2p(cos(0.5),cos(0.5)))
+        line3_short = Line(axes.c2p(cos(0.5),cos(0.5)),axes.c2p(cos(0.5),cos(cos(0.5)))).set_color(YELLOW)
+        line1_c = line1.copy()
+        self.play(ReplacementTransform(line1,line3))
+        self.wait()
+        self.play(ReplacementTransform(line3,line1_c),Create(line3_short))
+        self.wait()
+
+        line4 = Line(axes.c2p(cos(0.5),cos(cos(0.5))),axes.c2p(cos(0.5),0))
+        line5 = Line(axes.c2p(0,0),axes.c2p(cos(cos(0.5)),0))
+        self.play(Create(line4))
+        self.wait()
+        self.play(ReplacementTransform(line4.copy(),line5))
+        self.wait()
+
+        self.play(line4.animate.move_to(axes.c2p(cos(cos(0.5)),cos(cos(0.5))/2)),line5.animate.move_to(axes.c2p(cos(cos(0.5))/2,cos(cos(0.5)))))
+        self.wait()
+        line6 = Line(axes.c2p(cos(0.5),cos(cos(0.5))),axes.c2p(cos(cos(0.5)),cos(cos(0.5)))).set_color(YELLOW)
+        self.play(ReplacementTransform(VGroup(line4,line5),line6))
+        self.wait()
+
+        line7 = Line(axes.c2p(cos(cos(0.5)),0),axes.c2p(cos(cos(0.5)),cos(cos(cos(0.5)))))
+        self.play(Create(line7))
+        self.wait()
+
+        line8 = Line(axes.c2p(cos(cos(0.5)),cos(cos(0.5))),axes.c2p(cos(cos(0.5)),cos(cos(cos(0.5))))).set_color(YELLOW)
+        self.play(ReplacementTransform(line7,line8))
+        self.wait()
+
+        line9 = Line(axes.c2p(cos(cos(0.5)),cos(cos(cos(0.5)))),axes.c2p(cos(cos(cos(0.5))),cos(cos(cos(0.5))))).set_color(YELLOW)
+        self.play(Create(line9))
+        self.wait()
+
+        line10 = Line(axes.c2p(cos(cos(cos(0.5))),cos(cos(cos(0.5)))), axes.c2p(cos(cos(cos(0.5))),cos(cos(cos(cos(0.5)))))).set_color(YELLOW)
+        self.play(Create(line10))
+        self.wait()
+
+        line11 = Line(axes.c2p(cos(cos(cos(0.5))),cos(cos(cos(cos(0.5))))),axes.c2p(cos(cos(cos(cos(0.5)))),cos(cos(cos(cos(0.5)))))).set_color(YELLOW)
+        self.play(Create(line11))
+        self.wait(3)
+
+        s_lg.add(line1_c,line1,line2,line2_short,line3_short,line9,line10,line11)
+        math3 = MathTex(r'\cos(x)=x').to_edge(UP+RIGHT,buff=2).shift(DOWN).set_color(YELLOW)
+        self.play(ReplacementTransform(s_lg.copy(),math3))
+        self.wait()
+        math4 = MathTex(r'\cos(x)=x \\ x \approx 0.739').move_to(math3.get_center()).set_color(YELLOW)
+        self.play(ReplacementTransform(math3,math4))
+        self.wait(3)
+
+        self.play(*[FadeOut(mob) for mob in self.mobjects])
+
+
+        #Back to theorem
+        self.play(FadeIn(group1),FadeIn(text1_sub),VGroup(math2,math2_rec).animate.move_to(ORIGIN).shift(DOWN*2))
+        self.wait()
+        math2_c = math1[1].copy()
+        self.play(ReplacementTransform(VGroup(math2,math2_rec),math2_c))
+        self.remove(math2_c)
+        self.play(Indicate(math1[1]))
+        self.play(math1[1].animate.set_color(GREEN))
+        self.wait(2)
+
+
+        #Conclusion
+
+        self.play(text1_sub.animate.scale(3).move_to(ORIGIN),FadeOut(VGroup(text1,math1)))
+        self.wait()
+        self.play(ReplacementTransform(text1_sub,Tex('0.739').scale(3/2).set_color(YELLOW)))
