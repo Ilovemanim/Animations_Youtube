@@ -1,0 +1,119 @@
+from manim import *
+
+
+class mt(ThreeDScene):
+    def construct(self): 
+
+        
+        self.camera.background_color=WHITE
+
+        name = Text('made by Jihoon Choi').scale(0.2).to_edge(RIGHT+DOWN).set_color(BLACK)
+        self.add(name)
+
+        logo_u1 = Polygon([-3.4,2.2,0],[-3.6,3,0],[0,4.4,0],[3.6,3,0],[3.4,2.2,0],[0,3.6,0],fill_opacity=1,fill_color=GREEN_C,stroke_color=GREEN_D,stroke_width=10).set_z_index(1)
+        logo_u2 = Polygon([-3.4,2.2,0],[-3.6,3,0],[0,4.4,0],[3.6,3,0],[3.4,2.2,0],[0,3.6,0],fill_opacity=1,fill_color=GRAY_B,stroke_width=0,stroke_color=GRAY_C).shift(DOWN*2).scale(0.9).set_z_index(1)
+        logo_d1 = Polygon([-3.4,2.2,0],[0,1,0],[3.4,2.2,0],[2.4,2.6,0],[0,1.8,0],[-2.4,2.6,0],[-3.4,2.2,0],fill_opacity=1,fill_color=GRAY_C,stroke_opacity=0)
+        logo_d2 = logo_d1.copy().shift(DOWN*1.7).scale(0.9)
+
+        logod = Polygon([-2.8,-0.8,0],[0,0.3,0],[2.8,-0.8,0],[0,-3.4,0],fill_opacity=1,fill_color=GRAY_E,stroke_width=0,stroke_color=WHITE).set_z_index(1)
+
+        logo = VGroup(logo_u1,logo_u2,logod,logo_d1,logo_d2).scale(0.4)
+
+        self.play(ShowPassingFlash(logo))
+
+        logo1 = VGroup(logo_u1,logo_u2,logod)
+        logo2 = VGroup(logo_d1,logo_d2)
+        ivytext = Text('Ivy Collegiate School').next_to(logo,DOWN).set_color_by_gradient(GREEN_C,GRAY_B,GRAY_D)
+        self.play(LaggedStart(DrawBorderThenFill(logo1),Write(logo2),lag_ratio=0.5),Write(ivytext),run_time=2)
+        self.play(ivytext[1:1].animate.set_color(GREEN_C),ivytext[3:14].animate.set_color(GRAY_B),ivytext[13:21].animate.set_color(GRAY_D))
+        self.wait()
+
+        self.play(Unwrite(ivytext),FadeOut(logo),run_time=2)
+        self.wait(1)
+
+        self.camera.background_color=WHITE
+
+        text1 = Text("It's Coming Back...").to_edge(RIGHT).set_opacity(0).set_color(BLACK).scale(1.5)
+        self.play(text1.animate.set_opacity(1).move_to(ORIGIN),run_time=2)
+        self.play(text1.animate.set_opacity(0).to_edge(LEFT),run_time=2)
+        self.remove(text1)
+
+        self.wait(0.5)
+
+        text2 = Text("Get Ready For...").to_edge(RIGHT).set_opacity(0).set_color(BLACK).scale(1.5)
+        self.play(text2.animate.set_opacity(1).move_to(ORIGIN),run_time=2)
+        self.play(text2.animate.set_opacity(0).to_edge(LEFT),run_time=2)
+        self.remove(text2)
+
+        self.wait(0.5)
+
+        axes = Axes(x_range=[0,4.3,5],y_range=[0,18.3,19],x_length=3,y_length=3,tips=False).set_color(BLACK)
+        graph = axes.plot(lambda x: x**2,x_range=[0,4]).set_color(BLACK)
+        self.play(Create(axes), Create(graph))
+
+        x = ValueTracker(1)
+        rs = always_redraw(lambda: axes.get_riemann_rectangles(graph = graph,dx=x.get_value(), x_range=[0,4],color=BLACK))
+        self.play(Create(rs))
+        self.play(x.animate.set_value(0.1))
+        self.play(x.animate.set_value(0.01))
+        
+        self.wait(0.5)
+
+        integral = MathTex('\int').scale(2).set_color(BLACK)
+        integral_number = MathTex('\int_{0}^{2025}').set_color(BLACK).scale(2)
+        self.play(ReplacementTransform(VGroup(rs,graph,axes),integral))
+        self.wait()
+
+        int_text = Text('Integration Bee').set_color(BLACK)
+        dx_text = Text('dx').set_color(BLACK).next_to(int_text,RIGHT,aligned_edge=UP)
+        self.play(integral.animate.shift(LEFT*2.5),Write(int_text))
+        integral_number.move_to(integral.get_center())
+        self.play(Create(dx_text),ReplacementTransform(integral,integral_number),run_time=2)
+        self.wait(2)
+        self.play(Unwrite(VGroup(int_text,dx_text,integral_number)))  
+
+        self.wait()
+        nvmcredit = Text('Organized by  NVM').set_color(BLACK).shift(LEFT)
+        nvm= ImageMobject("nvm.png").scale(0.5).next_to(nvmcredit)
+        nc = Rectangle(width=nvmcredit[-3:].width*1.2,height=nvmcredit[-3:].height*1.2).move_to(nvmcredit[-3:].get_center()).set_opacity(1).set_color(BLACK).set_z_index(-1)
+        nvmcredit[-3:].set_color(WHITE)
+        self.play(Write(nvmcredit))
+        self.play(FadeIn(nvm),GrowFromEdge(nc,LEFT))
+        self.wait(2)
+
+        self.play(Unwrite(nvmcredit),FadeOut(nvm),FadeOut(nc))
+        self.wait()
+
+        t1 = Text("3!").set_color(BLACK).to_edge(RIGHT)
+        self.play(t1.animate.set_opacity(1).move_to(ORIGIN),run_time=1)
+        self.play(t1.animate.set_opacity(0).to_edge(LEFT),run_time=1)
+        self.remove(t1)
+
+
+        t2 = Text('2!').set_color(BLACK).to_edge(RIGHT)
+        self.play(t2.animate.set_opacity(1).move_to(ORIGIN),run_time=1)
+        self.play(t2.animate.set_opacity(0).to_edge(LEFT),run_time=1)
+        self.remove(t2)
+
+
+        t3 = Text('1!').set_color(BLACK).to_edge(RIGHT)
+        self.play(t3.animate.set_opacity(1).move_to(ORIGIN),run_time=1)
+        self.play(t3.animate.set_opacity(0).to_edge(LEFT),run_time=1)
+        self.remove(t3)
+
+        self.wait()
+        t4=Text('Integrate!').set_color(BLACK)
+        self.play(Broadcast(t4))
+        self.wait()
+        
+
+        
+        
+
+
+
+
+
+
+
+         
